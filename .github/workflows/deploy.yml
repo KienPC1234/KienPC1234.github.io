@@ -3,7 +3,7 @@ name: Deploy Jekyll site to GitHub Pages
 on:
   push:
     branches:
-      - main  # Thay 'main' bằng nhánh chính của bạn, nếu khác.
+      - main  # Workflow sẽ chạy khi đẩy code lên nhánh main.
 
 jobs:
   build-and-deploy:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.2 # Chọn phiên bản Ruby, thường là 3.x
+          ruby-version: 3.2 # Chọn phiên bản Ruby phù hợp
 
       # Bước 3: Cài đặt các gói cần thiết
       - name: Install dependencies
@@ -29,9 +29,10 @@ jobs:
         run: |
           bundle exec jekyll build
 
-      # Bước 5: Deploy tới GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
+      # Bước 5: Deploy trực tiếp lên nhánh main
+      - name: Copy files to main branch root
+        run: |
+          mv _site/* ./  # Chuyển nội dung từ _site ra gốc nhánh main
+          git add .
+          git commit -m "Deploy site" || echo "No changes to deploy"
+          git push origin main
